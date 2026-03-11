@@ -69,9 +69,15 @@ openclaw configure
 - **USDT (TRC20)**: `TYTvuzacfUgeei36NK9dmfUCKFqiQfYizp`
 
 ### 微信/支付宝
-扫码打赏：
+> 📷 Boss 正在提供收款码图片...
 
-> 💡 微信/支付宝收款码请查看 GitHub Releases 中的图片
+### 服务支持
+如果安装遇到问题，提供远程安装服务：
+- 基础安装：¥99
+- 完整配置：¥299
+- 企业定制：¥999
+
+详情：https://yang1002378395-cmyk.github.io/clawmart
 
 ## 📚 相关链接
 
