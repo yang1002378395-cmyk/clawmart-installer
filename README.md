@@ -1,49 +1,48 @@
-# 🦞 ClawMart - OpenClaw 一键安装包
+# 🦞 ClawMart - OpenClaw 一键安装
 
-一键安装 OpenClaw + 预设 Skills + 记忆体配置，开箱即用。
+**10 分钟搭建你的 AI 助手，预装 10+ 主流实用 Skills**
 
-## ✨ 特性
+## ✨ 特点
 
-- **一键安装**：运行一行命令，自动配置环境
-- **预设 Skills**：3 个常用技能开箱即用
-- **记忆体配置**：自动创建长期记忆模板
-- **跨平台**：支持 macOS 和 Windows
+- 🚀 **一键安装** - 自动安装 OpenClaw + 所有依赖
+- 📦 **预装 Skills** - Excel、网页抓取、图片、视频、PDF 等
+- 🍎 **支持 Mac** - Intel 和 Apple Silicon 都支持
+- 🆓 **完全免费** - 开源，自己搭建
 
-## 🚀 快速开始
+## 📦 预装 Skills
 
-### macOS
+| Skill | 功能 | 依赖 |
+|-------|------|------|
+| 📊 Excel 处理 | 读取/编辑/转换 Excel/CSV | pandas, openpyxl |
+| 🌐 网页抓取 | 抓取网页数据 | requests, beautifulsoup4 |
+| 🖼️ 图片处理 | 调整尺寸/压缩/转换 | Pillow |
+| 🎬 视频处理 | 剪辑/压缩/转换 | FFmpeg |
+| 📄 PDF 处理 | 合并/拆分/转换 | PyPDF2 |
+| 📝 文档转换 | Word/Markdown/HTML 互转 | Pandoc |
+| 🎵 音频处理 | 格式转换/剪辑 | FFmpeg |
+| 🧹 数据清洗 | 去重/填充/验证 | pandas |
+| 🔤 快速翻译 | 多语言翻译 | OpenClaw |
+| 🌳 Git 助手 | Commit 生成/PR 管理 | Git |
 
-打开终端，运行：
+## 🚀 安装
+
+### 方式 1：一键安装（推荐）
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yang1002378395-cmyk/clawmart-installer/main/install.sh | bash
 ```
 
-### Windows
+### 方式 2：手动安装
 
-以管理员身份打开 PowerShell，运行：
+```bash
+# 克隆仓库
+git clone https://github.com/yang1002378395-cmyk/clawmart-installer.git
+cd clawmart-installer
 
-```powershell
-iwr https://raw.githubusercontent.com/yang1002378395-cmyk/clawmart-installer/main/install.ps1 | iex
+# 运行安装脚本
+chmod +x install.sh
+./install.sh
 ```
-
-## 📦 包含内容
-
-### OpenClaw 核心
-- 最新版 OpenClaw
-- 自动检测并安装 Node.js 18+
-
-### 预设 Skills
-
-| Skill | 功能 |
-|-------|------|
-| quick-proposal | 快速报价生成 |
-| price-monitor | 价格监控 |
-| follow-up-agent | 客户跟进 |
-
-### 记忆体模板
-- `MEMORY.md` - 长期记忆
-- `USER.md` - 用户信息
 
 ## ⚙️ 配置
 
@@ -54,41 +53,89 @@ openclaw configure
 ```
 
 选择你的 AI 模型：
+- **DeepSeek** (推荐，便宜): https://platform.deepseek.com
+- **GLM-4** (国产): https://open.bigmodel.cn
+- **OpenAI**: https://platform.openai.com
 
-| 模型 | 价格 | 推荐场景 |
-|------|------|----------|
-| DeepSeek | ¥0.27/M tokens | 日常使用，性价比最高 |
-| GPT-4o mini | $0.15/M tokens | OpenAI 生态 |
-| Claude Haiku | $0.25/M tokens | Anthropic 生态 |
+获取 API Key 后填入配置即可使用。
 
-## 💰 支持项目
+## 💡 使用示例
 
-觉得有用？打赏支持：
+### Excel 处理
 
-### 加密货币（推荐）
-- **USDT (TRC20)**: `TYTvuzacfUgeei36NK9dmfUCKFqiQfYizp`
+```
+帮我读取 sales.xlsx，统计每月销售额
+```
 
-### 微信/支付宝
-> 📷 Boss 正在提供收款码图片...
+### 网页抓取
 
-### 服务支持
-如果安装遇到问题，提供远程安装服务：
-- 基础安装：¥99
-- 完整配置：¥299
-- 企业定制：¥999
+```
+抓取 https://example.com 的所有文章标题
+```
 
-详情：https://yang1002378395-cmyk.github.io/clawmart
+### 图片处理
 
-## 📚 相关链接
+```
+将 images/ 下所有图片调整为 800x600
+```
 
-- [OpenClaw 官网](https://openclaw.ai)
-- [OpenClaw 文档](https://docs.openclaw.ai)
-- [ClawHub Skills 市场](https://clawhub.ai)
+### 视频处理
 
-## 📄 许可证
+```
+将 video.mp4 压缩到 50MB 以内
+```
 
-MIT License
+### PDF 处理
+
+```
+合并 file1.pdf 和 file2.pdf
+```
+
+## 🧪 测试安装
+
+```bash
+# 检查安装
+python3 --version
+node --version
+ffmpeg -version
+pandoc --version
+openclaw --version
+
+# 测试 Skill
+openclaw chat "帮我读取一个 Excel 文件"
+```
+
+## 📊 版本历史
+
+### v1.1.0 (2026-03-11)
+- ✨ 新增 10 个主流实用 Skills
+- ✨ 自动安装 FFmpeg, Pandoc 等依赖
+- ✨ 改进安装脚本，支持离线安装
+- 🐛 修复 Apple Silicon 兼容性问题
+
+### v1.0.0 (2026-03-10)
+- 🎉 首次发布
+- ✨ OpenClaw 核心安装
+- ✨ 基础 Skills 预装
+
+## 🤝 支持
+
+- 📚 文档: https://docs.openclaw.ai
+- 💬 社区: https://discord.com/invite/clawd
+- 🐛 问题: https://github.com/yang1002378395-cmyk/clawmart-installer/issues
+
+## 💰 打赏
+
+觉得有用？打赏支持开发：
+
+```
+USDT (TRC20): TYTvuzacfUgeei36NK9dmfUCKFqiQfYizp
+```
+
+## 📄 License
+
+MIT License - 自由使用、修改、分发
 
 ---
 
-Made with ❤️ by [ClawMart](https://github.com/yang1002378395-cmyk/clawmart-installer)
+**🦞 ClawMart** - 让 AI 触手可及

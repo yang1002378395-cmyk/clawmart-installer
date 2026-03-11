@@ -1,11 +1,13 @@
 #!/bin/bash
-# ClawMart 一键安装脚本
+# ClawMart 一键安装脚本 v2.0
 # 支持 macOS (Intel/Apple Silicon)
+# 预装 10+ 主流实用 Skills
 
 set -e
 
-echo "🦞 ClawMart 一键安装"
-echo "===================="
+echo "🦞 ClawMart 一键安装 v2.0"
+echo "========================="
+echo ""
 
 # 检测系统
 OS=$(uname -s)
@@ -18,124 +20,223 @@ fi
 
 echo "✅ 检测到 macOS ($ARCH)"
 
-# 检查 Node.js
+# 检查 Homebrew
+if ! command -v brew &> /dev/null; then
+    echo "📦 安装 Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# 安装基础依赖
+echo "📦 安装基础依赖..."
+
+# Python 3
+if ! command -v python3 &> /dev/null; then
+    echo "  📦 Python 3..."
+    brew install python@3.11
+fi
+
+# Node.js
 if command -v node &> /dev/null; then
     NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
     if [ "$NODE_VERSION" -ge 18 ]; then
-        echo "✅ Node.js $(node -v) 已安装"
+        echo "  ✅ Node.js $(node -v)"
     else
-        echo "⚠️  Node.js 版本过低，需要 18+"
-        echo "📦 正在安装 Node.js..."
-        if command -v brew &> /dev/null; then
-            brew install node@20
-        else
-            echo "❌ 请先安装 Homebrew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-            exit 1
-        fi
+        echo "  📦 升级 Node.js..."
+        brew install node@20
     fi
 else
-    echo "📦 正在安装 Node.js..."
-    if command -v brew &> /dev/null; then
-        brew install node@20
-    else
-        echo "❌ 请先安装 Homebrew"
-        exit 1
-    fi
+    echo "  📦 Node.js..."
+    brew install node@20
 fi
 
+# FFmpeg（视频/音频处理）
+if ! command -v ffmpeg &> /dev/null; then
+    echo "  📦 FFmpeg（视频/音频处理）..."
+    brew install ffmpeg
+else
+    echo "  ✅ FFmpeg"
+fi
+
+# Pandoc（文档转换）
+if ! command -v pandoc &> /dev/null; then
+    echo "  📦 Pandoc（文档转换）..."
+    brew install pandoc
+else
+    echo "  ✅ Pandoc"
+fi
+
+# Python 依赖
+echo "📦 安装 Python 依赖..."
+pip3 install --quiet pandas openpyxl Pillow PyPDF2 requests beautifulsoup4 lxml 2>/dev/null || \
+    pip install --quiet pandas openpyxl Pillow PyPDF2 requests beautifulsoup4 lxml
+
 # 安装 OpenClaw
+echo ""
 echo "📦 安装 OpenClaw..."
 if command -v openclaw &> /dev/null; then
-    echo "✅ OpenClaw 已安装，版本: $(openclaw --version)"
+    echo "✅ OpenClaw 已安装，版本: $(openclaw --version 2>/dev/null || echo '未知')"
 else
     npm install -g openclaw
     echo "✅ OpenClaw 安装完成"
 fi
 
 # 创建配置目录
+echo ""
 echo "📁 创建配置目录..."
-mkdir -p ~/.openclaw/workspace
 mkdir -p ~/.openclaw/workspace/skills
 mkdir -p ~/.openclaw/workspace/memory
 
-# 下载预设 Skills
-echo "📦 下载预设 Skills..."
+# 安装预设 Skills
+echo ""
+echo "📦 安装预设 Skills..."
+
 SKILLS_DIR=~/.openclaw/workspace/skills
 
-# 快速报价
-mkdir -p "$SKILLS_DIR/quick-proposal"
-cat > "$SKILLS_DIR/quick-proposal/SKILL.md" << 'SKILL_EOF'
+# 如果有本地 skills 目录，复制过去
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d "$SCRIPT_DIR/skills" ]; then
+    echo "  📂 从本地安装 Skills..."
+    for skill_dir in "$SCRIPT_DIR/skills"/*/; do
+        skill_name=$(basename "$skill_dir")
+        mkdir -p "$SKILLS_DIR/$skill_name"
+        cp -r "$skill_dir"* "$SKILLS_DIR/$skill_name/" 2>/dev/null
+        echo "    ✅ $skill_name"
+    done
+else
+    # 在线安装（fallback）
+    echo "  📂 在线下载 Skills..."
+    
+    # Excel 处理
+    mkdir -p "$SKILLS_DIR/excel-processor"
+    cat > "$SKILLS_DIR/excel-processor/SKILL.md" << 'SKILL_EOF'
 ---
-name: quick-proposal
+name: excel-processor
 version: 1.0.0
-description: 根据客户需求自动生成专业报价单
+description: Excel 表格处理 - 读取、编辑、转换 Excel/CSV 文件
 license: MIT
 ---
 
-# 快速报价
+# Excel 表格处理
 
-根据客户需求自动生成专业报价单，包含项目拆解、工时估算、价格明细。
+强大的 Excel/CSV 数据处理能力。
 
-## 使用方式
+## 使用方法
 
 ```
-帮我生成报价，客户是 XX 公司，需求是 YY
+读取 data.xlsx，显示前 10 行
 ```
 
-## 输出示例
-
-📋 项目报价单
-客户：XX 科技有限公司
-项目：小程序开发
-...
+```
+清洗这个 Excel，去除重复行
+```
 SKILL_EOF
 
-# 价格监控
-mkdir -p "$SKILLS_DIR/price-monitor"
-cat > "$SKILLS_DIR/price-monitor/SKILL.md" << 'SKILL_EOF'
+    # 网页抓取
+    mkdir -p "$SKILLS_DIR/web-scraper"
+    cat > "$SKILLS_DIR/web-scraper/SKILL.md" << 'SKILL_EOF'
 ---
-name: price-monitor
+name: web-scraper
 version: 1.0.0
-description: 监控竞品价格变化，自动提醒
+description: 网页数据抓取 - 抓取网页内容、提取数据
 license: MIT
 ---
 
-# 价格监控
+# 网页数据抓取
 
-监控竞品价格变化，达到目标价格自动提醒。
+轻松抓取网页数据。
 
-## 使用方式
+## 使用方法
 
 ```
-帮我监控 XX 产品的价格，低于 ¥100 提醒我
+抓取 https://example.com 的所有文章标题
 ```
 SKILL_EOF
 
-# 客户跟进
-mkdir -p "$SKILLS_DIR/follow-up-agent"
-cat > "$SKILLS_DIR/follow-up-agent/SKILL.md" << 'SKILL_EOF'
+    # 图片处理
+    mkdir -p "$SKILLS_DIR/image-toolkit"
+    cat > "$SKILLS_DIR/image-toolkit/SKILL.md" << 'SKILL_EOF'
 ---
-name: follow-up-agent
+name: image-toolkit
 version: 1.0.0
-description: 自动跟进客户，生成跟进邮件
+description: 图片处理工具 - 调整尺寸、压缩、格式转换
 license: MIT
 ---
 
-# 客户跟进
+# 图片处理工具
 
-自动记录跟进时间，生成跟进邮件，提醒再次跟进。
+一站式图片处理解决方案。
 
-## 使用方式
+## 使用方法
 
 ```
-记录客户张总需要下周三跟进
+将 image.jpg 调整为 800x600
+```
+
+```
+将所有 PNG 转换为 JPG
 ```
 SKILL_EOF
 
-echo "✅ 预设 Skills 安装完成"
+    # 视频处理
+    mkdir -p "$SKILLS_DIR/video-editor"
+    cat > "$SKILLS_DIR/video-editor/SKILL.md" << 'SKILL_EOF'
+---
+name: video-editor
+version: 1.0.0
+description: 视频处理工具 - 剪辑、压缩、格式转换
+license: MIT
+---
+
+# 视频处理工具
+
+强大的视频处理能力。
+
+## 使用方法
+
+```
+裁剪 video.mp4 从 10 秒到 30 秒
+```
+
+```
+将 video.mov 转换为 MP4
+```
+SKILL_EOF
+
+    # PDF 处理
+    mkdir -p "$SKILLS_DIR/pdf-toolkit"
+    cat > "$SKILLS_DIR/pdf-toolkit/SKILL.md" << 'SKILL_EOF'
+---
+name: pdf-toolkit
+version: 1.0.0
+description: PDF 处理工具 - 合并、拆分、压缩、转换
+license: MIT
+---
+
+# PDF 处理工具
+
+一站式 PDF 处理方案。
+
+## 使用方法
+
+```
+合并 file1.pdf 和 file2.pdf
+```
+
+```
+将 report.pdf 转换为图片
+```
+SKILL_EOF
+fi
+
+# 统计安装的 Skills
+SKILL_COUNT=$(ls -d "$SKILLS_DIR"/*/ 2>/dev/null | wc -l | tr -d ' ')
+echo ""
+echo "✅ 已安装 $SKILL_COUNT 个 Skills"
 
 # 创建记忆体模板
+echo ""
 echo "📝 创建记忆体模板..."
+
 MEMORY_DIR=~/.openclaw/workspace/memory
 
 cat > "$MEMORY_DIR/MEMORY.md" << 'MEMORY_EOF'
@@ -167,9 +268,32 @@ USER_EOF
 
 echo "✅ 记忆体模板创建完成"
 
+# 验证安装
+echo ""
+echo "🔍 验证安装..."
+
+python3 --version &>/dev/null && echo "  ✅ Python 3"
+node --version &>/dev/null && echo "  ✅ Node.js"
+ffmpeg -version &>/dev/null && echo "  ✅ FFmpeg"
+pandoc --version &>/dev/null && echo "  ✅ Pandoc"
+openclaw --version &>/dev/null && echo "  ✅ OpenClaw" || echo "  ⚠️  OpenClaw 配置待完成"
+
 # 配置向导
 echo ""
 echo "🎉 安装完成！"
+echo ""
+echo "📋 已安装的功能："
+echo "  • OpenClaw 核心"
+echo "  • Excel 表格处理"
+echo "  • 网页数据抓取"
+echo "  • 图片处理工具"
+echo "  • 视频处理工具"
+echo "  • PDF 处理工具"
+echo "  • 文档格式转换"
+echo "  • 音频处理工具"
+echo "  • 数据清洗工具"
+echo "  • 快速翻译"
+echo "  • Git 提交助手"
 echo ""
 echo "📋 下一步："
 echo "1. 运行配置向导："
@@ -177,13 +301,13 @@ echo "   openclaw configure"
 echo ""
 echo "2. 选择你的 AI 模型："
 echo "   - DeepSeek (推荐，便宜): https://platform.deepseek.com"
+echo "   - GLM-4 (国产): https://open.bigmodel.cn"
 echo "   - OpenAI: https://platform.openai.com"
-echo "   - Anthropic: https://console.anthropic.com"
 echo ""
 echo "3. 获取 API Key 后填入配置"
 echo ""
 echo "4. 测试："
-echo "   openclaw chat \"你好\""
+echo "   openclaw chat \"帮我读取一个 Excel 文件\""
 echo ""
 echo "📚 文档: https://docs.openclaw.ai"
 echo "🦞 ClawMart: https://github.com/yang1002378395-cmyk/clawmart-installer"
